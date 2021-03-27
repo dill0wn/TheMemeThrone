@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 
-namespace MemeGameBot
+namespace MemeThroneBot
 {
     class TheMemeThrone
     {
@@ -19,7 +19,7 @@ namespace MemeGameBot
 
             client.Log += Log;
 
-            var token = File.ReadAllText(Path.Combine("config", "token.txt"));
+            var token = File.ReadAllText("token.txt");
 
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
