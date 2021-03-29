@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -12,11 +13,13 @@ namespace MemeThroneBot
     class TheMemeThrone
     {
         private DiscordSocketClient client;
+        private CommandService commandService;
+        private CommandHandler commandHandler;
 
         static void Main(string[] args) =>
             new TheMemeThrone().MainAsync().GetAwaiter().GetResult();
 
-        public async Task MainAsync()
+        TheMemeThrone()
         {
             client = new DiscordSocketClient();
 
@@ -24,13 +27,24 @@ namespace MemeThroneBot
             client.JoinedGuild += JoinedGuild;
             client.GuildAvailable += JoinedGuild;
 
-            var token = File.ReadAllText("token.txt");
+            commandService = new CommandService(new CommandServiceConfig
+            {
+                LogLevel = LogSeverity.Debug,
 
-            await client.LoginAsync(TokenType.Bot, token);
+                CaseSensitiveCommands = false,
+            });
+
+            commandHandler = new CommandHandler(client, commandService);
+        }
+
+        public async Task MainAsync()
+        {
+            await commandHandler.InstallCommandsAsync();
+
+            await client.LoginAsync(TokenType.Bot, File.ReadAllText("token.txt"));
             await client.StartAsync();
 
             await DbTest();
-            Console.WriteLine($"Db Test Complete...");
 
             await Task.Delay(-1);
         }
@@ -41,7 +55,7 @@ namespace MemeThroneBot
             {
                 await db.AddAsync(new MemeCard { Url = "https://i.imgur.com/2Rd4iMl.mp4" });
                 await db.SaveChangesAsync();
-                
+
                 Console.WriteLine($"Created a Meme");
 
                 var blog = await db.MemeCards
@@ -65,12 +79,11 @@ namespace MemeThroneBot
         {
             Console.WriteLine($"Guild Event {guild}");
             await guild.DefaultChannel.SendMessageAsync("Hello World!");
-            // return Task.CompletedTask;
         }
 
         private async Task Log(LogMessage msg)
         {
-            Console.WriteLine(msg.ToString());
+            Console.WriteLine($"[MemeThrone.Log] {msg.ToString()}");
             await Task.CompletedTask;
         }
     }
