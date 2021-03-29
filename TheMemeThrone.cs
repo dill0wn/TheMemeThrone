@@ -36,7 +36,7 @@ namespace MemeThroneBot
             });
             
             services = new ServiceCollection()
-                // .AddDbContext<MemingContext>()
+                .AddDbContext<MemingContext>()
                 .AddSingleton(client)
                 .AddSingleton(commandService)
                 .BuildServiceProvider();
@@ -63,20 +63,23 @@ namespace MemeThroneBot
                 await db.AddAsync(new MemeCard { Url = "https://i.imgur.com/2Rd4iMl.mp4" });
                 await db.SaveChangesAsync();
 
+                // await db.AddAsync(new CaptionCard { Text = "This was a triumph." });
+                // await db.SaveChangesAsync();
+
                 Console.WriteLine($"Created a Meme");
 
-                var blog = await db.MemeCards
+                var meme = await db.MemeCards
                     .AsAsyncEnumerable()
                     .OrderBy(b => b.MemeCardId)
                     .FirstOrDefaultAsync();
 
-                Console.WriteLine($"Found a meme: {blog}");
+                Console.WriteLine($"Found a meme: {meme}");
 
-                blog.Url = "https://www.reddit.com";
+                meme.Url = "https://www.reddit.com";
                 await db.SaveChangesAsync();
-                Console.WriteLine($"Modified a meme: {blog}");
+                Console.WriteLine($"Modified a meme: {meme}");
 
-                db.Remove(blog);
+                db.Remove(meme);
                 await db.SaveChangesAsync();
                 Console.WriteLine($"Deleted the meme.");
             }
