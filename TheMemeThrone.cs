@@ -6,7 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MemeThroneBot
 {
@@ -14,6 +14,7 @@ namespace MemeThroneBot
     {
         private DiscordSocketClient client;
         private CommandService commandService;
+        private ServiceProvider services;
         private CommandHandler commandHandler;
 
         static void Main(string[] args) =>
@@ -33,8 +34,14 @@ namespace MemeThroneBot
 
                 CaseSensitiveCommands = false,
             });
+            
+            services = new ServiceCollection()
+                // .AddDbContext<MemingContext>()
+                .AddSingleton(client)
+                .AddSingleton(commandService)
+                .BuildServiceProvider();
 
-            commandHandler = new CommandHandler(client, commandService);
+            commandHandler = ActivatorUtilities.CreateInstance<CommandHandler>(services);
         }
 
         public async Task MainAsync()

@@ -1,39 +1,39 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using MemeThroneBot.Commands;
 
 namespace MemeThroneBot
 {
     public class CommandHandler
     {
-        private char PREFIX = '!';
+        private readonly char PREFIX = '!';
 
+        private readonly IServiceProvider services;
         private readonly DiscordSocketClient client;
         private readonly CommandService commands;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands)
+        public CommandHandler(IServiceProvider services, DiscordSocketClient client, CommandService commands)
         {
+            this.services = services;
             this.client = client;
             this.commands = commands;
 
             commands.Log += CommandLog;
         }
 
+        public async Task InstallCommandsAsync()
+        {
+            client.MessageReceived += HandleCommandAsync;
+            await commands.AddModulesAsync(Assembly.GetEntryAssembly(), services);
+        }
+
         private async Task CommandLog(LogMessage arg)
         {
             Console.WriteLine($"[CommandService] {arg}");
             await Task.CompletedTask;
-        }
-
-        public async Task InstallCommandsAsync()
-        {
-            client.MessageReceived += HandleCommandAsync;
-            await commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);
         }
 
         private async Task HandleCommandAsync(SocketMessage msgParam)
@@ -49,7 +49,7 @@ namespace MemeThroneBot
             }
 
             var context = new SocketCommandContext(client, message);
-            await commands.ExecuteAsync(context, argPos, null);
+            await commands.ExecuteAsync(context, argPos, services);
         }
     }
 }
