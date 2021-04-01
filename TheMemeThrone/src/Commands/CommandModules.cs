@@ -64,22 +64,32 @@ namespace MemeThroneBot.Commands
             }
 
             var embed = new EmbedBuilder()
-                .WithFields(
-                    new EmbedFieldBuilder { Name = "Option 1️⃣", Value = "Bar1", IsInline = true },
-                    new EmbedFieldBuilder { Name = "Option 2️⃣", Value = "Bar2", IsInline = true },
-                    new EmbedFieldBuilder { Name = "Option 3️⃣", Value = "Bar3", IsInline = false }
-                )
-                .WithTitle("Got Meme")
-                .WithDescription("This is a long message with some rich text.")
-                .WithColor(0x0000ff)
-                .WithImageUrl(meme.Url);
+                    .WithTitle("Waiting on Meme...");
             var message = await ReplyAsync(embed: embed.Build());
-            await message.AddReactionsAsync(new IEmote[]{
-                new Emoji("1️⃣"),
-                new Emoji("2️⃣"),
-                new Emoji("3️⃣"),
-            });
+            
+            message =  await Context.Channel.GetMessageAsync(message.Id, CacheMode.AllowDownload) as IUserMessage;
 
+            await Task.WhenAll(
+                message.AddReactionsAsync(new IEmote[]{
+                    new Emoji("1️⃣"),
+                    new Emoji("2️⃣"),
+                    new Emoji("3️⃣"),
+                }),
+
+                message.ModifyAsync((m) => {
+                    var embed = new EmbedBuilder()
+                        .WithFields(
+                            new EmbedFieldBuilder { Name = "Option 1️⃣", Value = "Bar1", IsInline = true },
+                            new EmbedFieldBuilder { Name = "Option 2️⃣", Value = "Bar2", IsInline = true },
+                            new EmbedFieldBuilder { Name = "Option 3️⃣", Value = "Bar3", IsInline = false }
+                        )
+                        .WithTitle("Got Meme")
+                        .WithDescription("This is a long message with some rich text.")
+                        .WithColor(0x0000ff)
+                        .WithImageUrl(meme.Url);
+                    m.Embed = embed.Build();
+                })
+            );
 
             Console.WriteLine($"Embeded image to {message.Channel.Id}, {message.Author.Id}, {message.GetJumpUrl()}");
         }
