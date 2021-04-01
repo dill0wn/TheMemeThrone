@@ -34,7 +34,7 @@ namespace MemeThroneBot
 
                 CaseSensitiveCommands = false,
             });
-            
+
             services = new ServiceCollection()
                 .AddDbContext<MemingContext>()
                 .AddSingleton(client)
@@ -46,42 +46,37 @@ namespace MemeThroneBot
 
         public async Task MainAsync()
         {
+            await EnsureDataset();
+
             await commandHandler.InstallCommandsAsync();
 
             await client.LoginAsync(TokenType.Bot, File.ReadAllText("token.txt"));
             await client.StartAsync();
 
-            await DbTest();
-
             await Task.Delay(-1);
         }
 
-        private async Task DbTest()
+        private async Task EnsureDataset()
         {
             using (var db = new MemingContext())
             {
-                await db.AddAsync(new MemeCard { Url = "https://i.imgur.com/2Rd4iMl.mp4" });
-                await db.SaveChangesAsync();
+                await db.Database.MigrateAsync();
 
-                // await db.AddAsync(new CaptionCard { Text = "This was a triumph." });
-                // await db.SaveChangesAsync();
-
-                Console.WriteLine($"Created a Meme");
-
-                var meme = await db.MemeCards
-                    .AsAsyncEnumerable()
-                    .OrderBy(b => b.MemeCardId)
-                    .FirstOrDefaultAsync();
-
-                Console.WriteLine($"Found a meme: {meme}");
-
-                meme.Url = "https://www.reddit.com";
-                await db.SaveChangesAsync();
-                Console.WriteLine($"Modified a meme: {meme}");
-
-                db.Remove(meme);
-                await db.SaveChangesAsync();
-                Console.WriteLine($"Deleted the meme.");
+                var meme = await db.MemeCards.AsAsyncEnumerable().FirstOrDefaultAsync();
+                if (meme == null)
+                {
+                    Console.WriteLine("Adding default MemeCard");
+                    await db.AddAsync(new MemeCard { Url = "https://i.kym-cdn.com/entries/icons/original/000/022/134/elmo.jpg" });
+                    await db.SaveChangesAsync();
+                }
+                
+                var caption = await db.CaptionCards.AsAsyncEnumerable().FirstOrDefaultAsync();
+                if (caption == null)
+                {
+                    Console.WriteLine("Adding default CaptionCard");
+                    await db.AddAsync(new CaptionCard { Text = "   Come with me if you want to live." });
+                    await db.SaveChangesAsync();
+                }
             }
         }
 
