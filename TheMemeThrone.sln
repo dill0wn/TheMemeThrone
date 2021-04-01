@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheMemeThrone", "TheMemeThrone\TheMemeThrone.csproj", "{18F34F34-1162-4EF3-B1EF-A804483DE93C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheMemeThrone.Tests", "TheMemeThrone.Tests\TheMemeThrone.Tests.csproj", "{75C653DE-6A4C-441D-A795-DBBC069DB29E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,17 @@ Global
 		{18F34F34-1162-4EF3-B1EF-A804483DE93C}.Release|x64.Build.0 = Release|Any CPU
 		{18F34F34-1162-4EF3-B1EF-A804483DE93C}.Release|x86.ActiveCfg = Release|Any CPU
 		{18F34F34-1162-4EF3-B1EF-A804483DE93C}.Release|x86.Build.0 = Release|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Debug|x64.Build.0 = Debug|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Debug|x86.Build.0 = Debug|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Release|x64.ActiveCfg = Release|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Release|x64.Build.0 = Release|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Release|x86.ActiveCfg = Release|Any CPU
+		{75C653DE-6A4C-441D-A795-DBBC069DB29E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
