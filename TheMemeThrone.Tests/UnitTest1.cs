@@ -9,6 +9,11 @@ namespace TheMemeThrone.Tests
         {
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+        }
+
         [Test]
         public void Test1()
         {
