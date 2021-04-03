@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using MemeThroneBot.Commands;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MemeThroneBot
 {
-    class TheMemeThrone
+    class Program
     {
         private DiscordSocketClient client;
         private CommandService commandService;
@@ -18,9 +19,9 @@ namespace MemeThroneBot
         private CommandHandler commandHandler;
 
         static void Main(string[] args) =>
-            new TheMemeThrone().MainAsync().GetAwaiter().GetResult();
+            new Program().MainAsync().GetAwaiter().GetResult();
 
-        TheMemeThrone()
+        Program()
         {
             client = new DiscordSocketClient();
 
@@ -39,6 +40,7 @@ namespace MemeThroneBot
                 .AddDbContext<MemingContext>()
                 .AddSingleton(client)
                 .AddSingleton(commandService)
+                .AddSingleton<CommandListeners>()
                 .BuildServiceProvider();
 
             commandHandler = ActivatorUtilities.CreateInstance<CommandHandler>(services);

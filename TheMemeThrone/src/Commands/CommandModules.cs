@@ -31,13 +31,13 @@ namespace MemeThroneBot.Commands
     [Group("get")]
     public class GetModule : ModuleBase<SocketCommandContext>
     {
-        public MemingContext context { get; set; }
+        public MemingContext db { get; set; }
 
         [Command("caption")]
         [Summary("Echoes a message.")]
         public async Task GetCaptionAsync()
         {
-            var caption = await context.CaptionCards.AsAsyncEnumerable().FirstOrDefaultAsync();
+            var caption = await db.CaptionCards.AsAsyncEnumerable().FirstOrDefaultAsync();
 
             Console.WriteLine($"get caption {caption}");
             if (caption == null)
@@ -54,7 +54,7 @@ namespace MemeThroneBot.Commands
         [Summary("Posts a Meme.")]
         public async Task GetMemeAsync()
         {
-            var meme = await context.MemeCards.AsAsyncEnumerable().FirstOrDefaultAsync();
+            var meme = await db.MemeCards.AsAsyncEnumerable().FirstOrDefaultAsync();
 
             Console.WriteLine($"get meme {meme}");
             if (meme == null)

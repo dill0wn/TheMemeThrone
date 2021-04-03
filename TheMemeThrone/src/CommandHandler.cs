@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using MemeThroneBot.Commands;
 
 namespace MemeThroneBot
 {
@@ -14,12 +15,14 @@ namespace MemeThroneBot
         private readonly IServiceProvider services;
         private readonly DiscordSocketClient client;
         private readonly CommandService commands;
+        private readonly CommandListeners listeners;
 
-        public CommandHandler(IServiceProvider services, DiscordSocketClient client, CommandService commands)
+        public CommandHandler(IServiceProvider services, DiscordSocketClient client, CommandService commands, CommandListeners listeners)
         {
             this.services = services;
             this.client = client;
             this.commands = commands;
+            this.listeners = listeners;
 
             commands.Log += CommandLog;
         }
