@@ -1,5 +1,6 @@
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -9,13 +10,15 @@ namespace MemeThroneBot.Commands
 {
     public class CommandListeners
     {
+        private readonly IServiceProvider services;
         private readonly DiscordSocketClient client;
         private readonly CommandService commands;
 
         // public MemingContext db { get; set; }
 
-        public CommandListeners(CommandService commands, DiscordSocketClient client)
+        public CommandListeners(IServiceProvider services, CommandService commands, DiscordSocketClient client)
         {
+            this.services = services;
             this.client = client;
             this.commands = commands;
             Console.WriteLine("CommandListeners initialized");
@@ -24,16 +27,19 @@ namespace MemeThroneBot.Commands
             client.ReactionRemoved += this.HandleReactionRemoved;
         }
 
-        private Task HandleReactionAdded(Cacheable<IUserMessage, ulong> user, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msgCache, ISocketMessageChannel channel, SocketReaction reaction)
         {
             Console.WriteLine("CommandListeners HandleReactionAdded");
-            return Task.CompletedTask;
+            var message = await msgCache.GetOrDownloadAsync();
+            var commandContext = new CommandContext(this.client, message);
+            var result = await commands.ExecuteAsync(commandContext, "ping", this.services);
+            Console.WriteLine("CommandListeners executed command {0}", result);
         }
 
-        private Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> user, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msgCache, ISocketMessageChannel channel, SocketReaction reaction)
         {
             Console.WriteLine("CommandListeners HandleReactionRemoved");
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
     }
 }

@@ -6,14 +6,14 @@ using Discord.Commands;
 
 namespace MemeThroneBot.Commands
 {
-    public class PingModule : ModuleBase<SocketCommandContext>
+    public class PingModule : ModuleBase<CommandContext>
     {
         [Command("ping")]
         public Task SayAsync() => ReplyAsync("pong");
 
     }
 
-    public class SayModule : ModuleBase<SocketCommandContext>
+    public class SayModule : ModuleBase<CommandContext>
     {
         [Command("say")]
         [Summary("Echoes a message.")]
@@ -29,7 +29,7 @@ namespace MemeThroneBot.Commands
     }
 
     [Group("get")]
-    public class GetModule : ModuleBase<SocketCommandContext>
+    public class GetModule : ModuleBase<CommandContext>
     {
         public MemingContext db { get; set; }
 

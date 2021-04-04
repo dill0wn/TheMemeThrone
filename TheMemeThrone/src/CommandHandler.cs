@@ -51,7 +51,7 @@ namespace MemeThroneBot
                 return;
             }
 
-            var context = new SocketCommandContext(client, message);
+            var context = new CommandContext(client, message);
             await commands.ExecuteAsync(context, argPos, services);
         }
     }
