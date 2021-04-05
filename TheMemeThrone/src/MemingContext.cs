@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,10 @@ namespace MemeThroneBot
             }
             options.UseSqlite($"Data Source={path}");
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // base.OnModelCreating(modelBuilder);
+        }
     }
 
     public class MemeCard
@@ -37,13 +42,22 @@ namespace MemeThroneBot
         public string Text { get; set; }
     }
 
+    public enum GameStateEnum
+    {
+        Lobby,
+        Started,
+        Ended
+    }
+
     [Index(nameof(Guild), IsUnique = true)]
     public class GameState
     {
         public int GameStateId { get; set; }
         public ulong Guild { get; set; }
         public ulong Channel { get; set; }
-        public string State { get; set; }
+
+        [Column(TypeName = "nvarchar(24)")]
+        public GameStateEnum State { get; set; }
 
         public List<PlayerState> Players { get; set; } = new List<PlayerState>();
 

@@ -35,7 +35,6 @@ namespace MemeThroneBot.Commands
             {
                 Channel = Context.Channel.Id,
                 Guild = Context.Guild.Id,
-                State = "idle"
             });
             await db.SaveChangesAsync();
             await ReplyAsync("Game Created!");
