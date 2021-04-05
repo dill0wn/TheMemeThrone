@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Microsoft.EntityFrameworkCore;
 
 namespace MemeThroneBot.Commands
 {
@@ -22,7 +23,7 @@ namespace MemeThroneBot.Commands
         [Summary("Creates a game.")]
         public async Task GameCreateAsync()
         {
-            var existing = await db.Games.SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id);
+            var existing = await db.Games.AsAsyncEnumerable().SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id);
             if (existing != null)
             {
                 await ReplyAsync("Game Already exists on channel");
@@ -39,12 +40,14 @@ namespace MemeThroneBot.Commands
             await db.SaveChangesAsync();
             await ReplyAsync("Game Created!");
         }
-        
+
         [Command("join")]
         [Summary("Joins a game.")]
         public async Task GameJoinAsync()
         {
-            var existing = await db.Games.SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id && game.Channel == Context.Channel.Id);
+            var existing = await db.Games
+                .Include(game => game.Players)
+                .SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id && game.Channel == Context.Channel.Id);
 
             if (existing == null)
             {
@@ -52,17 +55,37 @@ namespace MemeThroneBot.Commands
                 return;
             }
 
-            if(!existing.IsJoinable(Context.User.Id, out string msg)) 
+            if (!existing.IsJoinable(Context.User.Id, out string msg))
             {
                 await ReplyAsync(msg);
                 return;
             }
 
-            existing.Players.Add(new PlayerState {
+            existing.Players.Add(new PlayerState
+            {
                 User = Context.User.Id,
             });
             await db.SaveChangesAsync();
             await ReplyAsync("You Joined!");
+        }
+
+        [Command("delete")]
+        [Summary("Deletes a game.")]
+        // TODO: Restrict to admin roles
+        public async Task GameDeleteAsync()
+        {
+            var existing = await db.Games.AsAsyncEnumerable()
+                .SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id);
+
+            if (existing == null)
+            {
+                await ReplyAsync("Game Doesn't exist");
+                return;
+            }
+
+            db.Remove(existing);
+            await db.SaveChangesAsync();
+            await ReplyAsync("Game Deleted!");
         }
     }
 
