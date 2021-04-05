@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemeThroneBot
@@ -42,5 +44,24 @@ namespace MemeThroneBot
         public ulong Guild { get; set; }
         public ulong Channel { get; set; }
         public string State { get; set; }
+
+        public List<PlayerState> Players { get; set; } = new List<PlayerState>();
+
+        internal bool IsJoinable(ulong id, out string msg)
+        {
+            if (Players.FirstOrDefault(p => p.User == id) != null)
+            {
+                msg = "Player already in here.";
+                return false;
+            }
+            msg = "Joined.";
+            return true;
+        }
+    }
+
+    public class PlayerState
+    {
+        public int PlayerStateId { get; set; }
+        public ulong User { get; set; }
     }
 }

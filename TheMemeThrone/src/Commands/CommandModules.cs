@@ -39,6 +39,31 @@ namespace MemeThroneBot.Commands
             await db.SaveChangesAsync();
             await ReplyAsync("Game Created!");
         }
+        
+        [Command("join")]
+        [Summary("Joins a game.")]
+        public async Task GameJoinAsync()
+        {
+            var existing = await db.Games.SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id && game.Channel == Context.Channel.Id);
+
+            if (existing == null)
+            {
+                await ReplyAsync("Game Doesn't exist");
+                return;
+            }
+
+            if(!existing.IsJoinable(Context.User.Id, out string msg)) 
+            {
+                await ReplyAsync(msg);
+                return;
+            }
+
+            existing.Players.Add(new PlayerState {
+                User = Context.User.Id,
+            });
+            await db.SaveChangesAsync();
+            await ReplyAsync("You Joined!");
+        }
     }
 
     [Group("get")]
