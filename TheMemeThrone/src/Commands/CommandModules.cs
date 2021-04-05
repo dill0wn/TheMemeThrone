@@ -39,8 +39,9 @@ namespace MemeThroneBot.Commands
             var gameState = addResult.Entity;
 
             var view = await ViewFactory.CreateGameView(Context, gameState);
-            var msgRef = new MessageReference(Context.Message.Id, Context.Channel.Id, Context.Guild.Id);
-            var gameMessage = await ReplyAsync(message: view.Message, embed: view.Embed.Build(), messageReference: msgRef);
+
+            var gameMessage = await ViewFactory.ReplyAsync(Context, view);
+
             addResult.Entity.MessageId = gameMessage.Id;
             await db.SaveChangesAsync();
         }
@@ -69,8 +70,8 @@ namespace MemeThroneBot.Commands
             {
                 UserId = Context.User.Id,
             });
-            await db.SaveChangesAsync();
             await ReplyAsync("You Joined!");
+            await db.SaveChangesAsync();
         }
 
         [Command("delete")]

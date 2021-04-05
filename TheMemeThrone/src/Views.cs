@@ -11,8 +11,16 @@ namespace MemeThroneBot
         public static async Task<IGameView> CreateGameView(ICommandContext context, GameState gameState)
         {
             var view = new GameLobbyView();
-            await view.Init(context, gameState);
+            await view.BuildAsync(context, gameState);
             return view;
+        }
+
+        // TODO: don't feel great about this structure.
+        public static async Task<IUserMessage> ReplyAsync(ICommandContext context, IGameView view)
+        {
+            // var msgRef = new MessageReference(context.Message.Id, context.Channel.Id, context.Guild.Id);
+            var gameMessage = await context.Message.ReplyAsync(text: view.Message, embed: view.Embed.Build());
+            return gameMessage;
         }
     }
 
@@ -20,6 +28,8 @@ namespace MemeThroneBot
     {
         string Message { get; }
         EmbedBuilder Embed { get; }
+
+        Task BuildAsync(ICommandContext context, GameState gameState);
     }
 
     public class GameLobbyView : IGameView
@@ -29,8 +39,7 @@ namespace MemeThroneBot
 
         public GameLobbyView() { }
 
-
-        public async Task Init(ICommandContext context, GameState gameState)
+        public async Task BuildAsync(ICommandContext context, GameState gameState)
         {
             string playerString = "";
             if (gameState.Players.Count == 0)
@@ -66,6 +75,8 @@ namespace MemeThroneBot
                     }
                 );
             Console.WriteLine("Rendered view");
+
+            await Task.CompletedTask;
         }
     }
 }
