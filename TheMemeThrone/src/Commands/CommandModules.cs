@@ -23,21 +23,26 @@ namespace MemeThroneBot.Commands
         [Summary("Creates a game.")]
         public async Task GameCreateAsync()
         {
-            var existing = await db.Games.AsAsyncEnumerable().SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id);
+            var existing = await db.Games.AsAsyncEnumerable().SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id);
             if (existing != null)
             {
                 await ReplyAsync("Game Already exists on channel");
                 return;
             }
 
-
-            await db.AddAsync(new GameState
+            var addResult = await db.AddAsync(new GameState
             {
-                Channel = Context.Channel.Id,
-                Guild = Context.Guild.Id,
+                ChannelId = Context.Channel.Id,
+                GuildId = Context.Guild.Id,
             });
+
+            var gameState = addResult.Entity;
+
+            var view = await ViewFactory.CreateGameView(Context, gameState);
+            var msgRef = new MessageReference(Context.Message.Id, Context.Channel.Id, Context.Guild.Id);
+            var gameMessage = await ReplyAsync(message: view.Message, embed: view.Embed.Build(), messageReference: msgRef);
+            addResult.Entity.MessageId = gameMessage.Id;
             await db.SaveChangesAsync();
-            await ReplyAsync("Game Created!");
         }
 
         [Command("join")]
@@ -46,7 +51,7 @@ namespace MemeThroneBot.Commands
         {
             var existing = await db.Games
                 .Include(game => game.Players)
-                .SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id && game.Channel == Context.Channel.Id);
+                .SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id && game.ChannelId == Context.Channel.Id);
 
             if (existing == null)
             {
@@ -62,7 +67,7 @@ namespace MemeThroneBot.Commands
 
             existing.Players.Add(new PlayerState
             {
-                User = Context.User.Id,
+                UserId = Context.User.Id,
             });
             await db.SaveChangesAsync();
             await ReplyAsync("You Joined!");
@@ -74,7 +79,7 @@ namespace MemeThroneBot.Commands
         public async Task GameDeleteAsync()
         {
             var existing = await db.Games.AsAsyncEnumerable()
-                .SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id);
+                .SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id);
 
             if (existing == null)
             {

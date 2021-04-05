@@ -49,12 +49,14 @@ namespace MemeThroneBot
         Ended
     }
 
-    [Index(nameof(Guild), IsUnique = true)]
+    [Index(nameof(GuildId), IsUnique = true)]
     public class GameState
     {
         public int GameStateId { get; set; }
-        public ulong Guild { get; set; }
-        public ulong Channel { get; set; }
+
+        public ulong GuildId { get; set; }
+        public ulong ChannelId { get; set; }
+        public ulong MessageId { get; set; }
 
         [Column(TypeName = "nvarchar(24)")]
         public GameStateEnum State { get; set; }
@@ -63,7 +65,7 @@ namespace MemeThroneBot
 
         internal bool IsJoinable(ulong id, out string msg)
         {
-            if (Players.FirstOrDefault(p => p.User == id) != null)
+            if (Players.FirstOrDefault(p => p.UserId == id) != null)
             {
                 msg = "Player already in here.";
                 return false;
@@ -76,6 +78,6 @@ namespace MemeThroneBot
     public class PlayerState
     {
         public int PlayerStateId { get; set; }
-        public ulong User { get; set; }
+        public ulong UserId { get; set; }
     }
 }
