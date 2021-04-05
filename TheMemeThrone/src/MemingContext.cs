@@ -8,6 +8,7 @@ namespace MemeThroneBot
     {
         public DbSet<MemeCard> MemeCards { get; set; }
         public DbSet<CaptionCard> CaptionCards { get; set; }
+        public DbSet<GameState> Games { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -32,5 +33,14 @@ namespace MemeThroneBot
     {
         public int CaptionCardId { get; set; }
         public string Text { get; set; }
+    }
+
+    [Index(nameof(Guild), IsUnique = true)]
+    public class GameState
+    {
+        public int GameStateId { get; set; }
+        public ulong Guild { get; set; }
+        public ulong Channel { get; set; }
+        public string State { get; set; }
     }
 }

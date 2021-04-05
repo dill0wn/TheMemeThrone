@@ -13,18 +13,31 @@ namespace MemeThroneBot.Commands
 
     }
 
-    public class SayModule : ModuleBase<CommandContext>
+    [Group("game")]
+    public class GameModule : ModuleBase<CommandContext>
     {
-        [Command("say")]
-        [Summary("Echoes a message.")]
-        public Task SayAsync(
-            [Remainder]
-            [Summary("The text to echo")]
-            string echo
-            )
+        public MemingContext db { get; set; }
+
+        [Command("create")]
+        [Summary("Creates a game.")]
+        public async Task GameCreateAsync()
         {
-            Console.WriteLine($"say {echo}");
-            return ReplyAsync(echo);
+            var existing = await db.Games.SingleOrDefaultAsync(game => game.Guild == Context.Guild.Id);
+            if (existing != null)
+            {
+                await ReplyAsync("Game Already exists on channel");
+                return;
+            }
+
+
+            await db.AddAsync(new GameState
+            {
+                Channel = Context.Channel.Id,
+                Guild = Context.Guild.Id,
+                State = "idle"
+            });
+            await db.SaveChangesAsync();
+            await ReplyAsync("Game Created!");
         }
     }
 
@@ -66,8 +79,8 @@ namespace MemeThroneBot.Commands
             var embed = new EmbedBuilder()
                     .WithTitle("Waiting on Meme...");
             var message = await ReplyAsync(embed: embed.Build());
-            
-            message =  await Context.Channel.GetMessageAsync(message.Id, CacheMode.AllowDownload) as IUserMessage;
+
+            message = await Context.Channel.GetMessageAsync(message.Id, CacheMode.AllowDownload) as IUserMessage;
 
             await Task.WhenAll(
                 message.AddReactionsAsync(new IEmote[]{
@@ -76,7 +89,8 @@ namespace MemeThroneBot.Commands
                     new Emoji("3️⃣"),
                 }),
 
-                message.ModifyAsync((m) => {
+                message.ModifyAsync((m) =>
+                {
                     var embed = new EmbedBuilder()
                         .WithFields(
                             new EmbedFieldBuilder { Name = "Option 1️⃣", Value = "Bar1", IsInline = true },
