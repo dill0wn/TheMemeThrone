@@ -33,6 +33,21 @@ namespace MemeThroneBot.Commands
 
         private async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msgCache, ISocketMessageChannel channel, SocketReaction reaction)
         {
+            if (client.CurrentUser.Id == reaction.UserId)
+            {
+                Console.WriteLine("CommandListeners HandleReactionAdded -- ignoring because from me");
+                return;
+            }
+
+            if (!reaction.User.IsSpecified)
+            {
+                Console.WriteLine("CommandListeners HandleReactionAdded -- user not specified");
+            }
+            else if (reaction.User.Value.IsBot)
+            {
+                Console.WriteLine("CommandListeners HandleReactionAdded -- ignoring because bot");
+                return;
+            }
             if (emojiMap.TryGetValue(reaction.Emote.Name, out string cmd))
             {
                 Console.WriteLine($"CommandListeners HandleReactionAdded -- attempting {cmd}");

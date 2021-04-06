@@ -37,6 +37,8 @@ namespace MemeThroneBot.Commands
 
             var gameMessage = await Views.RenderViewAsReplyAsync(Context.Message, view);
 
+            await gameMessage.AddReactionAsync(new Emoji(KeyMotes.GAME_JOIN));
+
             addResult.Entity.MessageId = gameMessage.Id;
             await DB.SaveChangesAsync();
         }
