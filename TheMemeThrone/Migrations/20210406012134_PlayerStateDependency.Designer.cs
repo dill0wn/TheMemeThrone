@@ -2,14 +2,16 @@
 using MemeThroneBot;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace TheMemeThrone.Migrations
 {
     [DbContext(typeof(MemingContext))]
-    partial class MemingContextModelSnapshot : ModelSnapshot
+    [Migration("20210406012134_PlayerStateDependency")]
+    partial class PlayerStateDependency
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

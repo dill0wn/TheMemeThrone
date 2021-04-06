@@ -82,5 +82,8 @@ namespace MemeThroneBot
     {
         public int PlayerStateId { get; set; }
         public ulong UserId { get; set; }
+
+        public GameState GameState { get; set; }
+        public int GameStateId { get; set; }
     }
 }
