@@ -3,39 +3,63 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 
 namespace MemeThroneBot
 {
     public class ViewFactory
     {
-        public static async Task<IGameView> CreateGameView(ICommandContext context, GameState gameState)
+        private readonly DiscordSocketClient client;
+        public ViewFactory(DiscordSocketClient client)
+        {
+            this.client = client;
+        }
+
+        public async Task<IGameView> CreateGameView(ICommandContext context, GameState gameState)
         {
             var view = new GameLobbyView();
             await view.BuildAsync(context, gameState);
             return view;
         }
 
-        // TODO: don't feel great about this structure.
-        public static async Task<IUserMessage> ReplyAsync(ICommandContext context, IGameView view)
+        public async Task<IUserMessage> RenderViewAsReplyAsync(IUserMessage message, IGameView view)
         {
-            // var msgRef = new MessageReference(context.Message.Id, context.Channel.Id, context.Guild.Id);
-            var gameMessage = await context.Message.ReplyAsync(text: view.Message, embed: view.Embed.Build());
+            var gameMessage = await message.ReplyAsync(text: view.Text, embed: view.EmbedBuilder.Build());
             return gameMessage;
+        }
+
+        public async Task<IUserMessage> UpdateViewAsync(MessageReference messageReference, IGameView view)
+        {
+            var message = await client
+                .GetGuild(messageReference.GuildId.Value)
+                .GetTextChannel(messageReference.ChannelId)
+                .GetMessageAsync(messageReference.MessageId.Value) as IUserMessage;
+            return await UpdateViewAsync(message, view);
+        }
+
+        public async Task<IUserMessage> UpdateViewAsync(IUserMessage message, IGameView view)
+        {
+            await message.ModifyAsync(m =>
+            {
+                m.Content = view.Text;
+                m.Embed = view.EmbedBuilder.Build();
+            });
+            return message;
         }
     }
 
     public interface IGameView
     {
-        string Message { get; }
-        EmbedBuilder Embed { get; }
+        string Text { get; }
+        EmbedBuilder EmbedBuilder { get; }
 
         Task BuildAsync(ICommandContext context, GameState gameState);
     }
 
     public class GameLobbyView : IGameView
     {
-        public string Message { get; set; }
-        public EmbedBuilder Embed { get; set; }
+        public string Text { get; set; }
+        public EmbedBuilder EmbedBuilder { get; set; }
 
         public GameLobbyView() { }
 
@@ -55,7 +79,7 @@ namespace MemeThroneBot
                 }));
             }
 
-            Embed = new EmbedBuilder()
+            EmbedBuilder = new EmbedBuilder()
                 .WithTitle("Who Will Claim The Meme Throne?!")
                 .WithDescription(string.Join("\n\n", new string[]{
                     "Play a game, have fun.",

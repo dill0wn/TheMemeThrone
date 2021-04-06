@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
+using Discord;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemeThroneBot
@@ -57,6 +58,8 @@ namespace MemeThroneBot
         public ulong GuildId { get; set; }
         public ulong ChannelId { get; set; }
         public ulong MessageId { get; set; }
+
+        public MessageReference MessageReference { get => new MessageReference(MessageId, ChannelId, GuildId); }
 
         [Column(TypeName = "nvarchar(24)")]
         public GameStateEnum State { get; set; }

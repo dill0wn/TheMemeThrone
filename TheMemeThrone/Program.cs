@@ -40,6 +40,7 @@ namespace MemeThroneBot
                 .AddDbContext<MemingContext>()
                 .AddSingleton(client)
                 .AddSingleton(commandService)
+                .AddSingleton<ViewFactory>()
                 .AddSingleton<CommandListeners>()
                 .BuildServiceProvider();
 

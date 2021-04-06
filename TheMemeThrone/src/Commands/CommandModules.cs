@@ -7,16 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemeThroneBot.Commands
 {
-    public class PingModule : ModuleBase<CommandContext>
-    {
-        [Command("ping")]
-        public Task SayAsync() => ReplyAsync("pong");
-
-    }
-
     [Group("game")]
     public class GameModule : ModuleBase<CommandContext>
     {
+        public ViewFactory views { get; set; }
         public MemingContext db { get; set; }
 
         [Command("create")]
@@ -38,9 +32,9 @@ namespace MemeThroneBot.Commands
 
             var gameState = addResult.Entity;
 
-            var view = await ViewFactory.CreateGameView(Context, gameState);
+            var view = await views.CreateGameView(Context, gameState);
 
-            var gameMessage = await ViewFactory.ReplyAsync(Context, view);
+            var gameMessage = await views.RenderViewAsReplyAsync(Context.Message, view);
 
             addResult.Entity.MessageId = gameMessage.Id;
             await db.SaveChangesAsync();
@@ -70,7 +64,10 @@ namespace MemeThroneBot.Commands
             {
                 UserId = Context.User.Id,
             });
-            await ReplyAsync("You Joined!");
+            var view = await views.CreateGameView(Context, existing);
+
+            var gameMessage = await views.UpdateViewAsync(existing.MessageReference, view);
+
             await db.SaveChangesAsync();
         }
 
@@ -90,8 +87,31 @@ namespace MemeThroneBot.Commands
 
             db.Remove(existing);
             await db.SaveChangesAsync();
-            await ReplyAsync("Game Deleted!");
+            await Context.Message.ReplyAsync("Game Deleted!");
+            // TODO: delete original message
         }
+    }
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+    public class PingModule : ModuleBase<CommandContext>
+    {
+        [Command("ping")]
+        public Task SayAsync() => ReplyAsync("pong");
+
     }
 
     [Group("get")]
