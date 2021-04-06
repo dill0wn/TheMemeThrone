@@ -1,10 +1,12 @@
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MemeThroneBot.Commands
 {
@@ -14,7 +16,9 @@ namespace MemeThroneBot.Commands
         private readonly DiscordSocketClient client;
         private readonly CommandService commands;
 
-        // public MemingContext db { get; set; }
+        public readonly Dictionary<string, string> emojiMap = new Dictionary<string, string>{
+            { KeyMotes.GAME_JOIN, "game join" }
+        };
 
         public CommandListeners(IServiceProvider services, CommandService commands, DiscordSocketClient client)
         {
@@ -29,11 +33,23 @@ namespace MemeThroneBot.Commands
 
         private async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msgCache, ISocketMessageChannel channel, SocketReaction reaction)
         {
-            Console.WriteLine("CommandListeners HandleReactionAdded");
-            var message = await msgCache.GetOrDownloadAsync();
-            var commandContext = new CommandContext(this.client, message);
-            var result = await commands.ExecuteAsync(commandContext, "ping", this.services);
-            Console.WriteLine("CommandListeners executed command {0}", result);
+            if (emojiMap.TryGetValue(reaction.Emote.Name, out string cmd))
+            {
+                Console.WriteLine($"CommandListeners HandleReactionAdded -- attempting {cmd}");
+                var message = await msgCache.GetOrDownloadAsync();
+                var commandContext = new CommandContext(this.client, message);
+
+                using (var scope = services.CreateScope())
+                {
+                    var reactionContext = scope.ServiceProvider.GetService<ReactionContext>();
+                    reactionContext.Init(reaction);
+                    var result = await commands.ExecuteAsync(commandContext, cmd, scope.ServiceProvider);
+                }
+            }
+            else
+            {
+                Console.WriteLine("CommandListeners HandleReactionAdded -- skipping");
+            }
         }
 
         private async Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msgCache, ISocketMessageChannel channel, SocketReaction reaction)

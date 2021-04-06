@@ -10,21 +10,22 @@ namespace MemeThroneBot.Commands
     [Group("game")]
     public class GameModule : ModuleBase<CommandContext>
     {
-        public ViewFactory views { get; set; }
-        public MemingContext db { get; set; }
+        public ViewFactory Views { get; set; }
+        public MemingContext DB { get; set; }
+        public ReactionContext ReactionContext { get; set; }
 
         [Command("create")]
         [Summary("Creates a game.")]
         public async Task GameCreateAsync()
         {
-            var existing = await db.Games.AsAsyncEnumerable().SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id);
+            var existing = await DB.Games.AsAsyncEnumerable().SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id);
             if (existing != null)
             {
                 await ReplyAsync("Game Already exists on channel");
                 return;
             }
 
-            var addResult = await db.AddAsync(new GameState
+            var addResult = await DB.AddAsync(new GameState
             {
                 ChannelId = Context.Channel.Id,
                 GuildId = Context.Guild.Id,
@@ -32,19 +33,19 @@ namespace MemeThroneBot.Commands
 
             var gameState = addResult.Entity;
 
-            var view = await views.CreateGameView(Context, gameState);
+            var view = await Views.CreateGameView(Context, gameState);
 
-            var gameMessage = await views.RenderViewAsReplyAsync(Context.Message, view);
+            var gameMessage = await Views.RenderViewAsReplyAsync(Context.Message, view);
 
             addResult.Entity.MessageId = gameMessage.Id;
-            await db.SaveChangesAsync();
+            await DB.SaveChangesAsync();
         }
 
         [Command("join")]
         [Summary("Joins a game.")]
         public async Task GameJoinAsync()
         {
-            var existing = await db.Games
+            var existing = await DB.Games
                 .Include(game => game.Players)
                 .SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id && game.ChannelId == Context.Channel.Id);
 
@@ -54,7 +55,17 @@ namespace MemeThroneBot.Commands
                 return;
             }
 
-            if (!existing.IsJoinable(Context.User.Id, out string msg))
+            ulong userId;
+            if (this.ReactionContext.IsReaction)
+            {
+                userId = this.ReactionContext.Reaction.UserId;
+            }
+            else
+            {
+                userId = Context.User.Id;
+            }
+
+            if (!existing.IsJoinable(userId, out string msg))
             {
                 await ReplyAsync(msg);
                 return;
@@ -62,13 +73,13 @@ namespace MemeThroneBot.Commands
 
             existing.Players.Add(new PlayerState
             {
-                UserId = Context.User.Id,
+                UserId = userId,
             });
-            var view = await views.CreateGameView(Context, existing);
+            var view = await Views.CreateGameView(Context, existing);
 
-            var gameMessage = await views.UpdateViewAsync(existing.MessageReference, view);
+            var gameMessage = await Views.UpdateViewAsync(existing.MessageReference, view);
 
-            await db.SaveChangesAsync();
+            await DB.SaveChangesAsync();
         }
 
         [Command("delete")]
@@ -76,7 +87,7 @@ namespace MemeThroneBot.Commands
         // TODO: Restrict to admin roles
         public async Task GameDeleteAsync()
         {
-            var existing = await db.Games.AsAsyncEnumerable()
+            var existing = await DB.Games.AsAsyncEnumerable()
                 .SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id);
 
             if (existing == null)
@@ -85,8 +96,8 @@ namespace MemeThroneBot.Commands
                 return;
             }
 
-            db.Remove(existing);
-            await db.SaveChangesAsync();
+            DB.Remove(existing);
+            await DB.SaveChangesAsync();
             await Context.Message.ReplyAsync("Game Deleted!");
             // TODO: delete original message
         }
@@ -96,7 +107,7 @@ namespace MemeThroneBot.Commands
 
 
 
-    
+
 
 
 
