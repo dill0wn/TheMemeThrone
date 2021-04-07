@@ -14,6 +14,15 @@ namespace MemeThroneBot.Commands
         public MemingContext DB { get; set; }
         public ReactionContext ReactionContext { get; set; }
 
+        public async Task<GameState> GetGameStateFromContextAsync()
+        {
+            var task = DB.Games
+                .Include(game => game.Players)
+                .SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id && game.ChannelId == Context.Channel.Id);
+            var existing = await task;
+            return existing;
+        }
+
         [Command("create")]
         [Summary("Creates a game.")]
         public async Task GameCreateAsync()
@@ -47,11 +56,9 @@ namespace MemeThroneBot.Commands
         [Summary("Joins a game.")]
         public async Task GameJoinAsync()
         {
-            var existing = await DB.Games
-                .Include(game => game.Players)
-                .SingleOrDefaultAsync(game => game.GuildId == Context.Guild.Id && game.ChannelId == Context.Channel.Id);
+            var gameState = await GetGameStateFromContextAsync();
 
-            if (existing == null)
+            if (gameState == null)
             {
                 await ReplyAsync("Game Doesn't exist");
                 return;
@@ -67,19 +74,15 @@ namespace MemeThroneBot.Commands
                 userId = Context.User.Id;
             }
 
-            if (!existing.IsJoinable(userId, out string msg))
+            if (!gameState.JoinGame(userId, out string msg))
             {
                 await ReplyAsync(msg);
                 return;
             }
 
-            existing.Players.Add(new PlayerState
-            {
-                UserId = userId,
-            });
-            var view = await Views.CreateGameView(Context, existing);
+            var view = await Views.CreateGameView(Context, gameState);
 
-            var gameMessage = await Views.UpdateViewAsync(existing.MessageReference, view);
+            var gameMessage = await Views.UpdateViewAsync(gameState.MessageReference, view);
 
             await DB.SaveChangesAsync();
         }

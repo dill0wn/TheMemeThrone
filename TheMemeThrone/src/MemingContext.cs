@@ -66,13 +66,18 @@ namespace MemeThroneBot
 
         public List<PlayerState> Players { get; set; } = new List<PlayerState>();
 
-        internal bool IsJoinable(ulong id, out string msg)
+        internal bool JoinGame(ulong userId, out string msg)
         {
-            if (Players.FirstOrDefault(p => p.UserId == id) != null)
+            if (Players.FirstOrDefault(p => p.UserId == userId) != null)
             {
                 msg = "Player already in here.";
                 return false;
             }
+
+            Players.Add(new PlayerState
+            {
+                UserId = userId,
+            });
             msg = "Joined.";
             return true;
         }

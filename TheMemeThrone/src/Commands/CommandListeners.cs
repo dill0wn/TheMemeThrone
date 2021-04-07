@@ -16,7 +16,7 @@ namespace MemeThroneBot.Commands
         private readonly DiscordSocketClient client;
         private readonly CommandService commands;
 
-        public readonly Dictionary<string, string> emojiMap = new Dictionary<string, string>{
+        private readonly Dictionary<string, string> emojiCommandMap = new Dictionary<string, string>{
             { KeyMotes.GAME_JOIN, "game join" }
         };
 
@@ -48,7 +48,8 @@ namespace MemeThroneBot.Commands
                 Console.WriteLine("CommandListeners HandleReactionAdded -- ignoring because bot");
                 return;
             }
-            if (emojiMap.TryGetValue(reaction.Emote.Name, out string cmd))
+            
+            if (emojiCommandMap.TryGetValue(reaction.Emote.Name, out string cmd))
             {
                 Console.WriteLine($"CommandListeners HandleReactionAdded -- attempting {cmd}");
                 var message = await msgCache.GetOrDownloadAsync();
