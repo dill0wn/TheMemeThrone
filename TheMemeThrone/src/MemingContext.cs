@@ -53,6 +53,7 @@ namespace MemeThroneBot
     [Index(nameof(GuildId), IsUnique = true)]
     public class GameState
     {
+        public const int MIN_PLAYER_COUNT = 2;
         public int GameStateId { get; set; }
 
         public ulong GuildId { get; set; }
@@ -79,6 +80,25 @@ namespace MemeThroneBot
                 UserId = userId,
             });
             msg = "Joined.";
+            return true;
+        }
+
+        internal bool StartGame(out string msg)
+        {
+            if (State != GameStateEnum.Lobby)
+            {
+                msg = "Game already started";
+                return false;
+            }
+
+            if (Players.Count < MIN_PLAYER_COUNT)
+            {
+                msg = $"Not enough players. You need at least {MIN_PLAYER_COUNT} to start a game.";
+                return false;
+            }
+
+            State = GameStateEnum.Started;
+            msg = "Started";
             return true;
         }
     }

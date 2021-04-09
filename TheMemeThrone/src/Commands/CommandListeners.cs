@@ -53,12 +53,14 @@ namespace MemeThroneBot.Commands
             {
                 Console.WriteLine($"CommandListeners HandleReactionAdded -- attempting {cmd}");
                 var message = await msgCache.GetOrDownloadAsync();
-                var commandContext = new CommandContext(this.client, message);
+                // var commandContext = new CommandContext(this.client, message);
+
+                var commandContext = new SocketReactionCommandContext(this.client, message, reaction);
 
                 using (var scope = services.CreateScope())
                 {
-                    var reactionContext = scope.ServiceProvider.GetService<ReactionContext>();
-                    reactionContext.Init(reaction);
+                    // var reactionContext = scope.ServiceProvider.GetService<ReactionContext>();
+                    // reactionContext.Init(reaction);
                     var result = await commands.ExecuteAsync(commandContext, cmd, scope.ServiceProvider);
                 }
             }

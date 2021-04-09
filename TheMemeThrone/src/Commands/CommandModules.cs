@@ -86,6 +86,41 @@ namespace MemeThroneBot.Commands
 
             await DB.SaveChangesAsync();
         }
+        
+        [Command("start")]
+        [Summary("Starts a game.")]
+        public async Task GameStartAsync()
+        {
+            var gameState = await GetGameStateFromContextAsync();
+
+            if (gameState == null)
+            {
+                await ReplyAsync("Game Doesn't exist");
+                return;
+            }
+
+            ulong userId;
+            if (this.ReactionContext.IsReaction)
+            {
+                userId = this.ReactionContext.Reaction.UserId;
+            }
+            else
+            {
+                userId = Context.User.Id;
+            }
+
+            if (!gameState.StartGame(out string msg))
+            {
+                await ReplyAsync(msg);
+                return;
+            }
+            
+            var view = await Views.CreateGameView(Context, gameState);
+
+            var gameMessage = await Views.RenderViewAsReplyAsync(gameState.MessageReference, view);
+
+            await DB.SaveChangesAsync();
+        }
 
         [Command("delete")]
         [Summary("Deletes a game.")]

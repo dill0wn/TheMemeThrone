@@ -22,6 +22,13 @@ namespace MemeThroneBot
             return view;
         }
 
+        public async Task<IUserMessage> RenderViewAsReplyAsync(MessageReference messageReference, IGameView view)
+        {
+            var channel = client.GetGuild(messageReference.GuildId.Value).GetTextChannel(messageReference.ChannelId);
+            var gameMessage = await channel.SendMessageAsync(text: view.Text, embed: view.EmbedBuilder.Build(), messageReference: messageReference);
+            return gameMessage;
+        }
+
         public async Task<IUserMessage> RenderViewAsReplyAsync(IUserMessage message, IGameView view)
         {
             var gameMessage = await message.ReplyAsync(text: view.Text, embed: view.EmbedBuilder.Build());
