@@ -41,8 +41,7 @@ namespace MemeThroneBot
                 .AddSingleton(client)
                 .AddSingleton(commandService)
                 .AddSingleton<ViewFactory>()
-                .AddSingleton<CommandListeners>()
-                .AddScoped<ReactionContext>()
+                .AddSingleton<ReactionHandler>()
                 .BuildServiceProvider();
 
             commandHandler = ActivatorUtilities.CreateInstance<CommandHandler>(services);

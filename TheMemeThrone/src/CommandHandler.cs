@@ -15,9 +15,9 @@ namespace MemeThroneBot
         private readonly IServiceProvider services;
         private readonly DiscordSocketClient client;
         private readonly CommandService commands;
-        private readonly CommandListeners listeners;
+        private readonly ReactionHandler listeners;
 
-        public CommandHandler(IServiceProvider services, DiscordSocketClient client, CommandService commands, CommandListeners listeners)
+        public CommandHandler(IServiceProvider services, DiscordSocketClient client, CommandService commands, ReactionHandler listeners)
         {
             this.services = services;
             this.client = client;
@@ -51,7 +51,7 @@ namespace MemeThroneBot
                 return;
             }
 
-            var context = new CommandContext(client, message);
+            var context = new SocketReactionCommandContext(client, message);
             await commands.ExecuteAsync(context, argPos, services);
         }
     }

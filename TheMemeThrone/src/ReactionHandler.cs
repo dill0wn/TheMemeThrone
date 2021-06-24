@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MemeThroneBot.Commands
 {
-    public class CommandListeners
+    public class ReactionHandler
     {
         private readonly IServiceProvider services;
         private readonly DiscordSocketClient client;
@@ -20,7 +20,7 @@ namespace MemeThroneBot.Commands
             { KeyMotes.GAME_JOIN, "game join" }
         };
 
-        public CommandListeners(IServiceProvider services, CommandService commands, DiscordSocketClient client)
+        public ReactionHandler(IServiceProvider services, CommandService commands, DiscordSocketClient client)
         {
             this.services = services;
             this.client = client;
@@ -56,6 +56,8 @@ namespace MemeThroneBot.Commands
                 // var commandContext = new CommandContext(this.client, message);
 
                 var commandContext = new SocketReactionCommandContext(this.client, message, reaction);
+
+                // SocketReactionCommandContext commandContext = await SocketReactionCommandContext.FromReactionAsync(this.client, message, reaction);
 
                 using (var scope = services.CreateScope())
                 {

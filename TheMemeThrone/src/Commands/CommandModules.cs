@@ -8,11 +8,10 @@ using Microsoft.EntityFrameworkCore;
 namespace MemeThroneBot.Commands
 {
     [Group("game")]
-    public class GameModule : ModuleBase<CommandContext>
+    public class GameModule : ModuleBase<SocketReactionCommandContext>
     {
         public ViewFactory Views { get; set; }
         public MemingContext DB { get; set; }
-        public ReactionContext ReactionContext { get; set; }
 
         public async Task<GameState> GetGameStateFromContextAsync()
         {
@@ -46,6 +45,8 @@ namespace MemeThroneBot.Commands
 
             var gameMessage = await Views.RenderViewAsReplyAsync(Context.Message, view);
 
+            // TODO: render a separate view to a DM
+
             await gameMessage.AddReactionAsync(new Emoji(KeyMotes.GAME_JOIN));
 
             addResult.Entity.MessageId = gameMessage.Id;
@@ -64,14 +65,10 @@ namespace MemeThroneBot.Commands
                 return;
             }
 
-            ulong userId;
-            if (this.ReactionContext.IsReaction)
+            ulong userId = Context.User.Id;
+            if (this.Context.IsReaction)
             {
-                userId = this.ReactionContext.Reaction.UserId;
-            }
-            else
-            {
-                userId = Context.User.Id;
+                // noop
             }
 
             if (!gameState.JoinGame(userId, out string msg))
@@ -99,14 +96,10 @@ namespace MemeThroneBot.Commands
                 return;
             }
 
-            ulong userId;
-            if (this.ReactionContext.IsReaction)
+            ulong userId = Context.User.Id;
+            if (this.Context.IsReaction)
             {
-                userId = this.ReactionContext.Reaction.UserId;
-            }
-            else
-            {
-                userId = Context.User.Id;
+                // noop
             }
 
             if (!gameState.StartGame(out string msg))
@@ -158,7 +151,7 @@ namespace MemeThroneBot.Commands
 
 
 
-    public class PingModule : ModuleBase<CommandContext>
+    public class PingModule : ModuleBase<SocketReactionCommandContext>
     {
         [Command("ping")]
         public Task SayAsync() => ReplyAsync("pong");
@@ -166,7 +159,7 @@ namespace MemeThroneBot.Commands
     }
 
     [Group("get")]
-    public class GetModule : ModuleBase<CommandContext>
+    public class GetModule : ModuleBase<SocketReactionCommandContext>
     {
         public MemingContext db { get; set; }
 
