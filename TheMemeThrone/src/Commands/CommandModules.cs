@@ -83,7 +83,7 @@ namespace MemeThroneBot.Commands
 
             await DB.SaveChangesAsync();
         }
-        
+
         [Command("start")]
         [Summary("Starts a game.")]
         public async Task GameStartAsync()
@@ -107,10 +107,16 @@ namespace MemeThroneBot.Commands
                 await ReplyAsync(msg);
                 return;
             }
-            
+
             var view = await Views.CreateGameView(Context, gameState);
 
             var gameMessage = await Views.RenderViewAsReplyAsync(gameState.MessageReference, view);
+
+            foreach (var player in gameState.Players)
+            {
+                var user = await Context.Client.GetUserAsync(player.UserId);
+                await Views.RenderViewAsDMAsync(user, view);
+            }
 
             await DB.SaveChangesAsync();
         }
