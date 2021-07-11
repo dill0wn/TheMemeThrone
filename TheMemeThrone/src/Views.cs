@@ -16,30 +16,19 @@ namespace MemeThroneBot
         Task BuildAsync(ICommandContext context, GameState gameState);
     }
 
-    public class GameLobbyView : IGameView
+    public abstract class BaseGameView : IGameView
     {
         public string Text { get; set; }
-        public EmbedBuilder EmbedBuilder { get; set; }
+        public EmbedBuilder EmbedBuilder { get; protected set; } = new EmbedBuilder();
 
-        public GameLobbyView() { }
+        public abstract Task BuildAsync(ICommandContext context, GameState gameState);
+    }
 
-        public async Task BuildAsync(ICommandContext context, GameState gameState)
+    public class GameLobbyView : BaseGameView
+    {
+        public override async Task BuildAsync(ICommandContext context, GameState gameState)
         {
-            string playerString = "";
-            if (gameState.Players.Count == 0)
-            {
-                playerString = "None";
-            }
-            else
-            {
-                playerString = string.Join("\n", gameState.Players.Select(/* async */ p =>
-                {
-                    // var user = await context.Guild.GetUserAsync(p.User);
-                    return $"- <@{p.UserId}>";
-                }));
-            }
-
-            EmbedBuilder = new EmbedBuilder()
+            EmbedBuilder
                 .WithTitle("Who Will Claim The Meme Throne?!")
                 .WithDescription(string.Join("\n\n", new string[]{
                     "Play a game, have fun.",
@@ -47,15 +36,10 @@ namespace MemeThroneBot
                     "You can join at any time"
                 }))
                 .WithFields(
-                    // new EmbedFieldBuilder
-                    // {
-                    //     Name = "Created By",
-                    //     Value = "Some Nerd", // TODO: game ownership?
-                    // },
                     new EmbedFieldBuilder
                     {
                         Name = "Players",
-                        Value = playerString,
+                        Value = ViewHelpers.PlayerList(gameState),
                     }
                 );
             Console.WriteLine("Rendered view");
@@ -63,4 +47,46 @@ namespace MemeThroneBot
             await Task.CompletedTask;
         }
     }
+
+    public class TurnPublicView : BaseGameView
+    {
+        public override async Task BuildAsync(ICommandContext context, GameState gameState)
+        {
+            var currentPlayer = gameState.CurrentPlayer;
+
+            // TODO: either get services/contexts in here, or have that info in GameState ready to be plucked.
+            // var meme = await context.MemeCards.AsAsyncEnumerable().FirstOrDefaultAsync();
+
+            var url = "https://i.kym-cdn.com/entries/icons/original/000/022/134/elmo.jpg";
+
+            EmbedBuilder
+                .WithTitle($"It is {ViewHelpers.UserLink(currentPlayer.UserId)}'s turn.")
+                .WithDescription(string.Join("\n\n", new string[]{
+                    "Waiting on players...",
+                    "3/5 players have selected their captions",
+                    $"React with {KeyMotes.GAME_JOIN} to join the next round",
+                }))
+                .WithImageUrl(url)
+                // .WithImageUrl(meme.Url)
+                .WithFields(
+                    new EmbedFieldBuilder
+                    {
+                        Name = "Players",
+                        Value = ViewHelpers.PlayerList(gameState),
+                    }
+                );
+
+            await Task.CompletedTask;
+        }
+    }
+
+    // public class TurnActivePlayerView : BaseGameView
+    // {
+
+    // }
+
+    // public class TurnCaptionPlayerView : BaseGameView
+    // {
+
+    // }
 }

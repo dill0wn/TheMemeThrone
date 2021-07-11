@@ -41,7 +41,7 @@ namespace MemeThroneBot.Commands
 
             var gameState = addResult.Entity;
 
-            var view = await Views.CreateGameView(Context, gameState);
+            var view = await Views.CreateView<GameLobbyView>(Context, gameState);
 
             var gameMessage = await Views.RenderViewAsReplyAsync(Context.Message, view);
 
@@ -77,7 +77,7 @@ namespace MemeThroneBot.Commands
                 return;
             }
 
-            var view = await Views.CreateGameView(Context, gameState);
+            var view = await Views.CreateView<GameLobbyView>(Context, gameState);
 
             var gameMessage = await Views.UpdateViewAsync(gameState.MessageReference, view);
 
@@ -108,7 +108,7 @@ namespace MemeThroneBot.Commands
                 return;
             }
 
-            var view = await Views.CreateGameView(Context, gameState);
+            var view = await Views.CreateView<TurnPublicView>(Context, gameState);
 
             var gameMessage = await Views.RenderViewAsReplyAsync(gameState.MessageReference, view);
 

@@ -66,6 +66,7 @@ namespace MemeThroneBot
         public GameStateEnum State { get; set; }
 
         public List<PlayerState> Players { get; set; } = new List<PlayerState>();
+        public PlayerState CurrentPlayer { get => Players[0]; }
 
         internal bool JoinGame(ulong userId, out string msg)
         {

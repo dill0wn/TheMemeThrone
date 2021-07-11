@@ -13,9 +13,9 @@ namespace MemeThroneBot
             this.client = client;
         }
 
-        public async Task<IGameView> CreateGameView(ICommandContext context, GameState gameState)
+        public async Task<IGameView> CreateView<T>(ICommandContext context, GameState gameState) where T : IGameView, new()
         {
-            var view = new GameLobbyView();
+            var view = new T();
             await view.BuildAsync(context, gameState);
             return view;
         }
